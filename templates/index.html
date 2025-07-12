@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌸 神経衰弱ゲーム 🌸</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .title {
+            font-size: 3rem;
+            color: #ff6b9d;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .game-info {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+
+        .score-board {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-bottom: 20px;
+        }
+
+        .score-item {
+            background: linear-gradient(45deg, #ff9a9e, #fecfef);
+            padding: 15px 25px;
+            border-radius: 15px;
+            color: white;
+            font-weight: bold;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .turn-indicator {
+            font-size: 1.3rem;
+            color: #ff6b9d;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #ff6b9d, #ff9a9e);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 15px;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+
+        .card {
+            aspect-ratio: 1;
+            background: linear-gradient(45deg, #ff9a9e, #fecfef);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            position: relative;
+            transform-style: preserve-3d;
+        }
+
+        .card:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .card.flipped {
+            background: white;
+            transform: rotateY(180deg);
+        }
+
+        .card.matched {
+            background: linear-gradient(45deg, #a8e6cf, #dcedc1);
+            transform: scale(0.95);
+            opacity: 0.8;
+        }
+
+        .card-back {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, #ff9a9e, #fecfef);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            backface-visibility: hidden;
+        }
+
+        .card-front {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            backface-visibility: hidden;
+            transform: rotateY(180deg);
+        }
+
+        .game-over {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .game-over-content {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 400px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+
+        .game-over h2 {
+            color: #ff6b9d;
+            margin-bottom: 20px;
+            font-size: 2rem;
+        }
+
+        .game-over p {
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+        }
+
+        .history-section {
+            margin-top: 40px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+
+        .history-title {
+            color: #ff6b9d;
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+        }
+
+        .history-list {
+            list-style: none;
+            text-align: left;
+        }
+
+        .history-item {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        @media (max-width: 768px) {
+            .game-board {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 10px;
+                padding: 15px;
+            }
+            
+            .card {
+                font-size: 2rem;
+            }
+            
+            .title {
+                font-size: 2rem;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">🌸 神経衰弱ゲーム 🌸</h1>
+        <p class="subtitle">可愛いカードを揃えてAIと対戦しよう！</p>
+
+        <div class="game-info">
+            <div class="score-board">
+                <div class="score-item">
+                    <div>あなた</div>
+                    <div id="player-score">0</div>
+                </div>
+                <div class="score-item">
+                    <div>AI</div>
+                    <div id="ai-score">0</div>
+                </div>
+            </div>
+            <div class="turn-indicator" id="turn-indicator">あなたのターンです！</div>
+        </div>
+
+        <div class="controls">
+            <button class="btn" id="new-game-btn">🎮 新しいゲーム</button>
+            <button class="btn" id="shuffle-btn">🔄 カードをシャッフル</button>
+            <button class="btn" id="deal-btn">🎴 カードを配る</button>
+            <button class="btn" id="ai-btn">🤖 AIのターン</button>
+            <button class="btn" id="flip-back-btn" style="display: none;">🔄 カードを裏返す</button>
+        </div>
+
+        <div class="game-board" id="game-board">
+            <!-- カードがここに生成されます -->
+        </div>
+
+        <div class="history-section">
+            <h3 class="history-title">📊 ゲーム履歴</h3>
+            <ul class="history-list" id="history-list">
+                <!-- 履歴がここに表示されます -->
+            </ul>
+        </div>
+    </div>
+
+    <div class="game-over" id="game-over" style="display: none;">
+        <div class="game-over-content">
+            <h2 id="game-result">ゲーム終了！</h2>
+            <p id="final-score"></p>
+            <button class="btn" onclick="startNewGame()">もう一度プレイ</button>
+        </div>
+    </div>
+
+    <script>
+        let gameState = {
+            cards: [],
+            flipped: [],
+            matched: [],
+            playerScore: 0,
+            aiScore: 0,
+            currentTurn: 'player',
+            firstCard: null,
+            secondCard: null,
+            waitingForSecond: false
+        };
+
+        // ゲーム初期化
+        function initGame() {
+            fetch('/api/new-game')
+                .then(response => response.json())
+                .then(data => {
+                    gameState = {
+                        cards: data.cards,
+                        flipped: data.flipped,
+                        matched: data.matched,
+                        playerScore: data.player_score,
+                        aiScore: data.ai_score,
+                        currentTurn: data.current_turn,
+                        firstCard: null,
+                        secondCard: null,
+                        waitingForSecond: false
+                    };
+                    renderGame();
+                    updateTurnIndicator();
+                });
+        }
+
+        // ゲーム画面を描画
+        function renderGame() {
+            const gameBoard = document.getElementById('game-board');
+            gameBoard.innerHTML = '';
+
+            for (let i = 0; i < 20; i++) {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.dataset.index = i;
+
+                if (gameState.matched[i]) {
+                    card.classList.add('matched');
+                } else if (gameState.flipped[i]) {
+                    card.classList.add('flipped');
+                }
+
+                const cardBack = document.createElement('div');
+                cardBack.className = 'card-back';
+                cardBack.innerHTML = '🎴';
+
+                const cardFront = document.createElement('div');
+                cardFront.className = 'card-front';
+                cardFront.innerHTML = gameState.cards[i];
+
+                card.appendChild(cardBack);
+                card.appendChild(cardFront);
+
+                card.addEventListener('click', () => handleCardClick(i));
+                gameBoard.appendChild(card);
+            }
+
+            document.getElementById('player-score').textContent = gameState.playerScore;
+            document.getElementById('ai-score').textContent = gameState.aiScore;
+        }
+
+        // カードクリック処理
+        function handleCardClick(cardIndex) {
+            if (gameState.currentTurn !== 'player' || gameState.matched[cardIndex] || gameState.flipped[cardIndex]) {
+                return;
+            }
+
+            fetch('/api/flip-card', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ card_index: cardIndex })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    console.error(data.error);
+                    return;
+                }
+
+                // 2枚目のカードを選んだ直後で、マッチしなかった場合の処理
+                const wasSecondCard = (gameState.firstCard !== null && gameState.secondCard === null && data.second_card !== null);
+                const unmatched = (data.current_turn === 'ai' && data.matched && data.first_card === null && data.second_card === null && data.flipped && data.flipped.filter(f => f).length < 20);
+                const prevFirst = gameState.firstCard;
+                const prevSecond = data.second_card;
+
+                gameState.flipped = data.flipped;
+                gameState.matched = data.matched;
+                gameState.playerScore = data.player_score;
+                gameState.aiScore = data.ai_score;
+                gameState.currentTurn = data.current_turn;
+                gameState.firstCard = data.first_card;
+                gameState.secondCard = data.second_card;
+
+                renderGame();
+                updateTurnIndicator();
+
+                // 2枚目のカードを選んだ場合で、マッチしなかった場合
+                if (data.current_turn === 'ai' && prevFirst !== null && prevSecond !== null && !data.matched[prevFirst] && !data.matched[prevSecond]) {
+                    // カードを裏返すボタンを表示
+                    document.getElementById('flip-back-btn').style.display = 'inline-block';
+                } else if (data.current_turn === 'ai') {
+                    // マッチした場合はすぐAIのターン
+                    setTimeout(() => {
+                        handleAITurn();
+                    }, 1500);
+                }
+
+                // ゲーム終了チェック
+                checkGameEnd();
+            });
+        }
+
+        // カードを裏返す処理
+        function flipBackCards() {
+            // 現在表になっているカードを裏に戻す
+            const flippedCards = gameState.flipped.map((flipped, index) => ({ flipped, index })).filter(card => card.flipped && !gameState.matched[card.index]);
+            
+            if (flippedCards.length >= 2) {
+                // 最初の2枚を裏に戻す
+                gameState.flipped[flippedCards[0].index] = false;
+                gameState.flipped[flippedCards[1].index] = false;
+                
+                renderGame();
+                updateTurnIndicator();
+                
+                // カードを裏返すボタンを非表示
+                document.getElementById('flip-back-btn').style.display = 'none';
+                
+                // 次のターンに移行（プレイヤーのターン）
+                setTimeout(() => {
+                    updateTurnIndicator();
+                }, 500);
+            }
+        }
+
+        // AIのターン処理
+        function handleAITurn() {
+            console.log('AIターン開始');
+            fetch('/api/ai-turn')
+                .then(response => response.json())
+                .then(data => {
+                    console.log('AIターンレスポンス:', data);
+                    if (data.error) {
+                        console.error(data.error);
+                        return;
+                    }
+
+                    // AIが選んだカードを一瞬表示
+                    if (data.ai_first_card !== undefined && data.ai_second_card !== undefined) {
+                        // AIが選んだ2枚を表にする
+                        gameState.flipped[data.ai_first_card] = true;
+                        gameState.flipped[data.ai_second_card] = true;
+                        renderGame();
+                        
+                        // AIがマッチした場合はそのまま、マッチしなかった場合はカードを裏返すボタンを表示
+                        if (data.current_turn === 'ai') {
+                            // AIがマッチした場合、続行
+                            gameState.flipped = data.flipped;
+                            gameState.matched = data.matched;
+                            gameState.playerScore = data.player_score;
+                            gameState.aiScore = data.ai_score;
+                            gameState.currentTurn = data.current_turn;
+                            renderGame();
+                            updateTurnIndicator();
+                        } else {
+                            // AIがマッチしなかった場合、カードを裏返すボタンを表示
+                            setTimeout(() => {
+                                document.getElementById('flip-back-btn').style.display = 'inline-block';
+                            }, 1000);
+                        }
+                    } else {
+                        // 通常の処理
+                        gameState.flipped = data.flipped;
+                        gameState.matched = data.matched;
+                        gameState.playerScore = data.player_score;
+                        gameState.aiScore = data.ai_score;
+                        gameState.currentTurn = data.current_turn;
+                        renderGame();
+                        updateTurnIndicator();
+                    }
+
+                    // ゲーム終了チェック
+                    checkGameEnd();
+                })
+                .catch(error => {
+                    console.error('AIターンエラー:', error);
+                });
+        }
+
+        // ターン表示を更新
+        function updateTurnIndicator() {
+            const indicator = document.getElementById('turn-indicator');
+            if (gameState.currentTurn === 'player') {
+                indicator.textContent = 'あなたのターンです！';
+                indicator.style.color = '#ff6b9d';
+            } else {
+                indicator.textContent = 'AIのターンです...';
+                indicator.style.color = '#666';
+            }
+        }
+
+        // ゲーム終了チェック
+        function checkGameEnd() {
+            const matchedCount = gameState.matched.filter(m => m).length;
+            if (matchedCount === 20) {
+                setTimeout(() => {
+                    showGameOver();
+                }, 1000);
+            }
+        }
+
+        // ゲーム終了画面表示
+        function showGameOver() {
+            const gameOver = document.getElementById('game-over');
+            const gameResult = document.getElementById('game-result');
+            const finalScore = document.getElementById('final-score');
+
+            let resultText = '';
+            if (gameState.playerScore > gameState.aiScore) {
+                resultText = '🎉 あなたの勝利！ 🎉';
+            } else if (gameState.playerScore < gameState.aiScore) {
+                resultText = '😅 AIの勝利...';
+            } else {
+                resultText = '🤝 引き分け！';
+            }
+
+            gameResult.textContent = resultText;
+            finalScore.textContent = `最終スコア: あなた ${gameState.playerScore} - ${gameState.aiScore} AI`;
+
+            gameOver.style.display = 'flex';
+
+            // ゲーム結果を保存
+            fetch('/api/save-game', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    player_score: gameState.playerScore,
+                    ai_score: gameState.aiScore
+                })
+            });
+        }
+
+        // 新しいゲーム開始
+        function startNewGame() {
+            document.getElementById('game-over').style.display = 'none';
+            document.getElementById('flip-back-btn').style.display = 'none';
+            initGame();
+        }
+
+        // カードシャッフル
+        function shuffleCards() {
+            fetch('/api/reset-cards')
+                .then(response => response.json())
+                .then(data => {
+                    gameState.cards = data.cards;
+                    gameState.flipped = data.flipped;
+                    gameState.matched = data.matched;
+                    gameState.firstCard = null;
+                    gameState.secondCard = null;
+                    document.getElementById('flip-back-btn').style.display = 'none';
+                    renderGame();
+                });
+        }
+
+        // カードを配る
+        function dealCards() {
+            fetch('/api/deal-cards')
+                .then(response => response.json())
+                .then(data => {
+                    gameState.flipped = data.flipped;
+                    gameState.matched = data.matched;
+                    gameState.playerScore = data.player_score;
+                    gameState.aiScore = data.ai_score;
+                    gameState.currentTurn = data.current_turn;
+                    gameState.firstCard = null;
+                    gameState.secondCard = null;
+                    document.getElementById('flip-back-btn').style.display = 'none';
+                    renderGame();
+                    updateTurnIndicator();
+                });
+        }
+
+        // ゲーム履歴を読み込み
+        function loadGameHistory() {
+            fetch('/api/game-history')
+                .then(response => response.json())
+                .then(data => {
+                    const historyList = document.getElementById('history-list');
+                    historyList.innerHTML = '';
+
+                    data.forEach(game => {
+                        const item = document.createElement('li');
+                        item.className = 'history-item';
+                        item.innerHTML = `
+                            <span>${game.created_at}</span>
+                            <span>あなた ${game.player_score} - ${game.ai_score} AI</span>
+                        `;
+                        historyList.appendChild(item);
+                    });
+                });
+        }
+
+        // イベントリスナー設定
+        document.getElementById('new-game-btn').addEventListener('click', startNewGame);
+        document.getElementById('shuffle-btn').addEventListener('click', shuffleCards);
+        document.getElementById('deal-btn').addEventListener('click', dealCards);
+        document.getElementById('ai-btn').addEventListener('click', handleAITurn);
+        document.getElementById('flip-back-btn').addEventListener('click', flipBackCards);
+
+        // 初期化
+        initGame();
+        loadGameHistory();
+    </script>
+</body>
+</html> 
