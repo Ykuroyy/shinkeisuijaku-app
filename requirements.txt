@@ -1,4 +1,4 @@
-# Python 3.8+ required
+# Python 3.7+ required
 Flask==2.3.3
 Flask-SQLAlchemy==3.0.5
 python-dotenv==1.0.0
