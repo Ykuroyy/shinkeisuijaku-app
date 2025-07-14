@@ -219,13 +219,7 @@
             margin: 10px 0;
         }
 
-        .game-controls {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
+
 
         .controls {
             display: flex;
@@ -578,9 +572,6 @@
                     return;
                 }
 
-                // 2枚目のカードを選んだ直後で、マッチしなかった場合の処理
-                const wasSecondCard = (gameState.firstCard !== null && gameState.secondCard === null && data.second_card !== null);
-                const unmatched = (data.current_turn === 'ai' && data.matched && data.first_card === null && data.second_card === null && data.flipped && data.flipped.filter(f => f).length < 20);
                 const prevFirst = gameState.firstCard;
                 const prevSecond = data.second_card;
 
@@ -905,38 +896,7 @@
             }, cards.length * 50 + 800); // 全てのカードのアニメーション + シャッフル時間
         }
 
-        // カードシャッフル
-        function shuffleCards() {
-            fetch('/api/reset-cards')
-                .then(response => response.json())
-                .then(data => {
-                    gameState.cards = data.cards;
-                    gameState.flipped = data.flipped;
-                    gameState.matched = data.matched;
-                    gameState.firstCard = null;
-                    gameState.secondCard = null;
-                    document.getElementById('flip-back-btn').style.display = 'none';
-                    document.getElementById('ai-btn').style.display = 'none';
-                    renderGame();
-                });
-        }
 
-        // カードを配る
-        function dealCards() {
-            fetch('/api/deal-cards')
-                .then(response => response.json())
-                .then(data => {
-                    gameState.flipped = data.flipped;
-                    gameState.matched = data.matched;
-                    gameState.playerScore = data.player_score;
-                    gameState.aiScore = data.ai_score;
-                    gameState.currentTurn = data.current_turn;
-                    gameState.firstCard = null;
-                    gameState.secondCard = null;
-                    document.getElementById('flip-back-btn').style.display = 'none';
-                    renderGame();
-                });
-        }
 
         // ゲーム履歴を読み込み
         function loadGameHistory() {

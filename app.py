@@ -195,42 +195,7 @@ def ai_turn():
     print(f"AIターンレスポンス: {response_data}")
     return jsonify(response_data)
 
-@app.route('/api/reset-cards')
-def reset_cards():
-    """カードをリセット（シャッフル）"""
-    cards = CARDS.copy()
-    random.shuffle(cards)
-    
-    session['cards'] = cards
-    session['flipped'] = [False] * 20
-    session['matched'] = [False] * 20
-    session['first_card'] = None
-    session['second_card'] = None
-    
-    return jsonify({
-        'cards': cards,
-        'flipped': session['flipped'],
-        'matched': session['matched']
-    })
 
-@app.route('/api/deal-cards')
-def deal_cards():
-    """カードを配る（初期状態に戻す）"""
-    session['flipped'] = [False] * 20
-    session['matched'] = [False] * 20
-    session['player_score'] = 0
-    session['ai_score'] = 0
-    session['current_turn'] = 'player'
-    session['first_card'] = None
-    session['second_card'] = None
-    
-    return jsonify({
-        'flipped': session['flipped'],
-        'matched': session['matched'],
-        'player_score': session['player_score'],
-        'ai_score': session['ai_score'],
-        'current_turn': session['current_turn']
-    })
 
 @app.route('/api/save-game', methods=['POST'])
 def save_game():

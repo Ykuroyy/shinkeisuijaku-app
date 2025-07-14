@@ -12,9 +12,9 @@
 
 ## 🚀 機能
 
-- 🎮 新しいゲーム開始
-- 🔄 カードをシャッフル
-- 🎴 カードを配る（リセット）
+- 🎮 新しいゲーム開始（シャッフルアニメーション付き）
+- ✨ カードマッチ時のキラキラ効果
+- 🤖 AI対戦機能
 - 📊 ゲーム履歴の保存・表示
 - 🎯 カードをクリックすると浮き上がってから表になるアニメーション
 
@@ -101,8 +101,6 @@ shinkeisuijaku-app/
 - `GET /api/new-game` - 新しいゲーム開始
 - `POST /api/flip-card` - カードをめくる
 - `GET /api/ai-turn` - AIのターン
-- `GET /api/reset-cards` - カードをシャッフル
-- `GET /api/deal-cards` - カードを配る
 - `POST /api/save-game` - ゲーム結果を保存
 - `GET /api/game-history` - ゲーム履歴を取得
 
