@@ -7,16 +7,8 @@ from datetime import datetime
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key')
 
-# データベース設定
-if os.environ.get('DATABASE_URL') and 'postgres' in os.environ.get('DATABASE_URL', ''):
-    # RenderのPostgreSQL URLを適切に処理
-    database_url = os.environ.get('DATABASE_URL')
-    if database_url.startswith('postgres://'):
-        database_url = database_url.replace('postgres://', 'postgresql://', 1)
-    app.config['SQLALCHEMY_DATABASE_URI'] = database_url
-else:
-    # SQLiteを使用（開発環境とPostgreSQLが使えない場合）
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///game.db'
+# データベース設定 - SQLiteのみ使用
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///game.db'
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
@@ -227,8 +219,12 @@ def get_game_history():
     } for h in history])
 
 # データベース初期化
-with app.app_context():
-    db.create_all()
+try:
+    with app.app_context():
+        db.create_all()
+        print("Database initialized successfully")
+except Exception as e:
+    print(f"Database initialization error: {e}")
 
 if __name__ == '__main__':
     app.run(debug=True) 
