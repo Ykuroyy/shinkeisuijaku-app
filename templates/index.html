@@ -42,6 +42,7 @@
             background: rgba(255, 255, 255, 0.9);
             border-radius: 20px;
             padding: 20px;
+            margin-top: 20px;
             margin-bottom: 30px;
             box-shadow: 0 8px 32px rgba(0,0,0,0.1);
         }
@@ -221,6 +222,14 @@
 
 
 
+        .game-controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
         .controls {
             display: flex;
             justify-content: center;
@@ -289,6 +298,17 @@
             box-shadow: 0 8px 25px rgba(0,0,0,0.15);
         }
 
+        .card:hover .card-back {
+            background: linear-gradient(135deg, #ff8fa3 0%, #fecfef 50%, #ffa6d4 100%);
+        }
+
+        .card:hover .card-back::before,
+        .card:hover .card-back::after {
+            opacity: 1;
+            transform: scale(1.1);
+            transition: all 0.3s ease;
+        }
+
         .card.flipped {
             background: white;
             transform: rotateY(180deg);
@@ -313,13 +333,53 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(45deg, #ff9a9e, #fecfef);
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #ffb3d9 100%);
             border-radius: 15px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.5rem;
+            font-size: 1.2rem;
             backface-visibility: hidden;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-back::before {
+            content: '🌸';
+            position: absolute;
+            top: 10%;
+            left: 10%;
+            font-size: 1rem;
+            opacity: 0.7;
+        }
+
+        .card-back::after {
+            content: '✨';
+            position: absolute;
+            bottom: 10%;
+            right: 10%;
+            font-size: 1rem;
+            opacity: 0.7;
+        }
+
+        .card-back .card-pattern {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .card-back .main-icon {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+        }
+
+        .card-back .sub-icons {
+            display: flex;
+            gap: 8px;
+            font-size: 0.8rem;
+            opacity: 0.8;
         }
 
         .card-front {
@@ -529,7 +589,16 @@
 
                     const cardBack = document.createElement('div');
                     cardBack.className = 'card-back';
-                    cardBack.innerHTML = '🎴';
+                    cardBack.innerHTML = `
+                        <div class="card-pattern">
+                            <div class="main-icon">🎀</div>
+                            <div class="sub-icons">
+                                <span>💖</span>
+                                <span>⭐</span>
+                                <span>🌺</span>
+                            </div>
+                        </div>
+                    `;
 
                     const cardFront = document.createElement('div');
                     cardFront.className = 'card-front';
@@ -611,16 +680,23 @@
                     renderGame();
                 }
 
-                // 2枚目のカードを選んだ場合で、マッチしなかった場合
-                if (data.current_turn === 'ai' && prevFirst !== null && prevSecond !== null && !data.matched[prevFirst] && !data.matched[prevSecond]) {
-                    // カードを裏返すボタンを表示（AIのターンボタンは非表示のまま）
-                    document.getElementById('flip-back-btn').style.display = 'inline-block';
+                // 2枚目のカードを選んだ場合の処理
+                if (data.current_turn === 'ai') {
+                    // AIのターンになった場合
+                    if (prevFirst !== null && prevSecond !== null && !data.matched[prevFirst] && !data.matched[prevSecond]) {
+                        // マッチしなかった場合：カードを裏返すボタンを表示
+                        document.getElementById('flip-back-btn').style.display = 'inline-block';
+                        document.getElementById('ai-btn').style.display = 'none';
+                    } else if (data.matched && data.matched.filter(m => m).length > gameState.matched.filter(m => m).length) {
+                        // マッチした場合：2秒後にAIのターン
+                        setTimeout(() => {
+                            handleAITurn();
+                        }, 2000);
+                    }
+                } else {
+                    // プレイヤーのターンの場合：ボタンを非表示
+                    document.getElementById('flip-back-btn').style.display = 'none';
                     document.getElementById('ai-btn').style.display = 'none';
-                } else if (data.current_turn === 'ai' && data.matched && data.matched.filter(m => m).length > gameState.matched.filter(m => m).length) {
-                    // マッチした場合は2秒後にAIのターン
-                    setTimeout(() => {
-                        handleAITurn();
-                    }, 2000);
                 }
 
                 // ゲーム終了チェック
@@ -818,6 +894,13 @@
                     window.isSparkling = false;
                     // アイコンの場所にマッチしたカードを表示
                     renderMatchedCards();
+                    
+                    // キラキラ効果終了後にボタンの表示状態を確認
+                    if (gameState.currentTurn === 'player') {
+                        // プレイヤーのターンの場合：ボタンを非表示
+                        document.getElementById('flip-back-btn').style.display = 'none';
+                        document.getElementById('ai-btn').style.display = 'none';
+                    }
                 }, 4000);
             }, 1000);
         }
