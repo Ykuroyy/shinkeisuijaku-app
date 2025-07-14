@@ -54,6 +54,8 @@ def new_game():
     session['current_turn'] = 'player'  # 'player' or 'ai'
     session['first_card'] = None
     session['second_card'] = None
+    session['player_matched_cards'] = []  # プレイヤーがマッチしたカードのインデックス
+    session['ai_matched_cards'] = []      # AIがマッチしたカードのインデックス
     
     return jsonify({
         'cards': cards,
@@ -61,7 +63,9 @@ def new_game():
         'matched': session['matched'],
         'player_score': session['player_score'],
         'ai_score': session['ai_score'],
-        'current_turn': session['current_turn']
+        'current_turn': session['current_turn'],
+        'player_matched_cards': session['player_matched_cards'],
+        'ai_matched_cards': session['ai_matched_cards']
     })
 
 @app.route('/api/flip-card', methods=['POST'])
@@ -102,6 +106,8 @@ def flip_card():
             session['matched'][session['first_card']] = True
             session['matched'][session['second_card']] = True
             session['player_score'] += 1
+            # プレイヤーがマッチしたカードのインデックスを保存
+            session['player_matched_cards'].extend([session['first_card'], session['second_card']])
             session['first_card'] = None
             session['second_card'] = None
             # プレイヤーが続行
@@ -116,7 +122,9 @@ def flip_card():
             'ai_score': session['ai_score'],
             'current_turn': session['current_turn'],
             'first_card': session['first_card'],
-            'second_card': session['second_card']
+            'second_card': session['second_card'],
+            'player_matched_cards': session['player_matched_cards'],
+            'ai_matched_cards': session['ai_matched_cards']
         })
     
     return jsonify({'error': '無効な操作です'}), 400
@@ -167,6 +175,8 @@ def ai_turn():
         session['matched'][first_card] = True
         session['matched'][second_card] = True
         session['ai_score'] += 1
+        # AIがマッチしたカードのインデックスを保存
+        session['ai_matched_cards'].extend([first_card, second_card])
         session['first_card'] = None
         session['second_card'] = None
         print(f"AIがマッチ！スコア: {session['ai_score']}")
@@ -187,7 +197,9 @@ def ai_turn():
         'ai_score': session['ai_score'],
         'current_turn': session['current_turn'],
         'ai_first_card': first_card,
-        'ai_second_card': second_card
+        'ai_second_card': second_card,
+        'player_matched_cards': session['player_matched_cards'],
+        'ai_matched_cards': session['ai_matched_cards']
     }
     print(f"AIターンレスポンス: {response_data}")
     return jsonify(response_data)

@@ -559,7 +559,9 @@
                         currentTurn: data.current_turn,
                         firstCard: null,
                         secondCard: null,
-                        waitingForSecond: false
+                        waitingForSecond: false,
+                        player_matched_cards: data.player_matched_cards || [],
+                        ai_matched_cards: data.ai_matched_cards || []
                     };
                     renderGame();
                 });
@@ -659,6 +661,8 @@
                 gameState.currentTurn = data.current_turn;
                 gameState.firstCard = data.first_card;
                 gameState.secondCard = data.second_card;
+                gameState.player_matched_cards = data.player_matched_cards;
+                gameState.ai_matched_cards = data.ai_matched_cards;
 
                 // 新しくマッチしたカードがある場合、キラキラ効果を表示（renderGameは呼ばない）
                 if (newMatchedCards.length > 0) {
@@ -763,6 +767,8 @@
                                 gameState.playerScore = data.player_score;
                                 gameState.aiScore = data.ai_score;
                                 gameState.currentTurn = data.current_turn;
+                                gameState.player_matched_cards = data.player_matched_cards;
+                                gameState.ai_matched_cards = data.ai_matched_cards;
                                 
                                 if (newMatchedCards.length > 0) {
                                     // スコア表示のみ更新
@@ -778,6 +784,13 @@
                                     });
                                     
                                     showSparkleEffect(newMatchedCards);
+                                    
+                                    // AIがマッチした場合、キラキラ効果終了後にAIが続行
+                                    setTimeout(() => {
+                                        if (gameState.currentTurn === 'ai') {
+                                            handleAITurn();
+                                        }
+                                    }, 5000); // キラキラ効果（4秒）+ 1秒待機
                                 } else {
                                     // マッチしなかった場合は通常通りrenderGameを呼ぶ
                                     renderGame();
@@ -796,6 +809,8 @@
                         gameState.playerScore = data.player_score;
                         gameState.aiScore = data.ai_score;
                         gameState.currentTurn = data.current_turn;
+                        gameState.player_matched_cards = data.player_matched_cards;
+                        gameState.ai_matched_cards = data.ai_matched_cards;
                         renderGame();
                     }
 
@@ -818,44 +833,25 @@
             playerMatchedCards.innerHTML = '';
             aiMatchedCards.innerHTML = '';
             
-            // マッチしたカードを収集
-            const matchedPairs = [];
-            for (let i = 0; i < gameState.matched.length; i++) {
-                if (gameState.matched[i]) {
-                    matchedPairs.push({
-                        index: i,
-                        symbol: gameState.cards[i]
-                    });
-                }
+            // プレイヤーがマッチしたカードを表示
+            if (gameState.player_matched_cards) {
+                gameState.player_matched_cards.forEach(cardIndex => {
+                    const cardElement = document.createElement('div');
+                    cardElement.className = 'matched-card';
+                    cardElement.innerHTML = gameState.cards[cardIndex];
+                    playerMatchedCards.appendChild(cardElement);
+                });
             }
             
-            // ペアごとにグループ化
-            const pairs = [];
-            for (let i = 0; i < matchedPairs.length; i += 2) {
-                if (i + 1 < matchedPairs.length) {
-                    pairs.push([matchedPairs[i], matchedPairs[i + 1]]);
-                }
+            // AIがマッチしたカードを表示
+            if (gameState.ai_matched_cards) {
+                gameState.ai_matched_cards.forEach(cardIndex => {
+                    const cardElement = document.createElement('div');
+                    cardElement.className = 'matched-card';
+                    cardElement.innerHTML = gameState.cards[cardIndex];
+                    aiMatchedCards.appendChild(cardElement);
+                });
             }
-            
-            // プレイヤーとAIのスコアに基づいてカードを分配
-            let playerPairs = pairs.slice(0, gameState.playerScore);
-            let aiPairs = pairs.slice(gameState.playerScore, gameState.playerScore + gameState.aiScore);
-            
-            // プレイヤーのマッチしたカードを表示
-            playerPairs.forEach(pair => {
-                const cardElement = document.createElement('div');
-                cardElement.className = 'matched-card';
-                cardElement.innerHTML = pair[0].symbol;
-                playerMatchedCards.appendChild(cardElement);
-            });
-            
-            // AIのマッチしたカードを表示
-            aiPairs.forEach(pair => {
-                const cardElement = document.createElement('div');
-                cardElement.className = 'matched-card';
-                cardElement.innerHTML = pair[0].symbol;
-                aiMatchedCards.appendChild(cardElement);
-            });
         }
 
         // キラキラ効果を表示
@@ -900,6 +896,11 @@
                         // プレイヤーのターンの場合：ボタンを非表示
                         document.getElementById('flip-back-btn').style.display = 'none';
                         document.getElementById('ai-btn').style.display = 'none';
+                    } else if (gameState.currentTurn === 'ai') {
+                        // AIのターンの場合：AIが続行
+                        setTimeout(() => {
+                            handleAITurn();
+                        }, 1000);
                     }
                 }, 4000);
             }, 1000);
