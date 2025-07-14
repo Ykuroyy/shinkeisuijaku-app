@@ -35,7 +35,7 @@
         .subtitle {
             font-size: 1.2rem;
             color: #666;
-            margin-bottom: 30px;
+            margin-bottom: 15px;
         }
 
         .game-info {
@@ -61,6 +61,155 @@
             font-weight: bold;
             font-size: 1.1rem;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        .matched-cards {
+            margin-top: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            justify-content: center;
+        }
+
+        .matched-card {
+            background: white;
+            border-radius: 8px;
+            padding: 5px;
+            font-size: 1.2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            transform: scale(0.8);
+            transition: all 0.3s ease;
+            animation: cardMove 0.5s ease-out;
+        }
+
+        .matched-card:hover {
+            transform: scale(0.9);
+        }
+
+        @keyframes cardMove {
+            0% {
+                transform: scale(0.5) rotate(0deg);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.2) rotate(180deg);
+                opacity: 0.7;
+            }
+            100% {
+                transform: scale(0.8) rotate(360deg);
+                opacity: 1;
+            }
+        }
+
+        .empty-space {
+            background: transparent !important;
+            box-shadow: none !important;
+            border: 2px dashed #ddd;
+            opacity: 0.3;
+        }
+
+        /* キラキラ効果のアニメーション */
+        @keyframes sparkle {
+            0% { 
+                transform: scale(1) rotate(0deg) translateY(0px);
+                box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            }
+            25% { 
+                transform: scale(1.1) rotate(90deg) translateY(-10px);
+                box-shadow: 0 8px 25px rgba(255, 215, 0, 0.5);
+            }
+            50% { 
+                transform: scale(1.2) rotate(180deg) translateY(-20px);
+                box-shadow: 0 12px 35px rgba(255, 215, 0, 0.8);
+            }
+            75% { 
+                transform: scale(1.1) rotate(270deg) translateY(-10px);
+                box-shadow: 0 8px 25px rgba(255, 215, 0, 0.5);
+            }
+            100% { 
+                transform: scale(1) rotate(360deg) translateY(0px);
+                box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            }
+        }
+
+        /* カード自体の回転アニメーション */
+        @keyframes cardRotate {
+            0% { 
+                transform: rotateY(0deg) rotate(0deg);
+            }
+            25% { 
+                transform: rotateY(0deg) rotate(90deg);
+            }
+            50% { 
+                transform: rotateY(0deg) rotate(180deg);
+            }
+            75% { 
+                transform: rotateY(0deg) rotate(270deg);
+            }
+            100% { 
+                transform: rotateY(0deg) rotate(360deg);
+            }
+        }
+
+        /* シャッフルアニメーション */
+        @keyframes shuffle {
+            0% { 
+                transform: translateX(0px) translateY(0px) rotate(0deg);
+            }
+            25% { 
+                transform: translateX(20px) translateY(-30px) rotate(90deg);
+            }
+            50% { 
+                transform: translateX(-15px) translateY(25px) rotate(180deg);
+            }
+            75% { 
+                transform: translateX(25px) translateY(-20px) rotate(270deg);
+            }
+            100% { 
+                transform: translateX(0px) translateY(0px) rotate(360deg);
+            }
+        }
+
+        .shuffle-effect {
+            animation: shuffle 0.8s ease-in-out;
+            background: linear-gradient(45deg, #ff6b9d, #ff9a9e) !important;
+            box-shadow: 0 8px 25px rgba(255, 107, 157, 0.5) !important;
+        }
+
+        .sparkle-effect {
+            animation: cardRotate 2s ease-in-out infinite;
+            position: relative;
+            z-index: 100;
+            background: linear-gradient(45deg, #ffd700, #ffed4e) !important;
+            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.5) !important;
+            transform: rotateY(0deg) !important;
+        }
+
+        .sparkle-effect::before {
+            content: '✨';
+            position: absolute;
+            top: -15px;
+            left: -15px;
+            font-size: 25px;
+            animation: sparkle 1s ease-in-out infinite;
+            z-index: 10;
+        }
+
+        .sparkle-effect::after {
+            content: '✨';
+            position: absolute;
+            bottom: -15px;
+            right: -15px;
+            font-size: 25px;
+            animation: sparkle 1s ease-in-out infinite 0.5s;
+            z-index: 10;
+        }
+
+        .sparkle-effect .card-front {
+            color: #333 !important;
+            font-weight: bold !important;
+            transform: rotateY(0deg) !important;
         }
 
         .turn-indicator {
@@ -68,6 +217,14 @@
             color: #ff6b9d;
             font-weight: bold;
             margin: 10px 0;
+        }
+
+        .game-controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
         }
 
         .controls {
@@ -144,9 +301,16 @@
         }
 
         .card.matched {
-            background: linear-gradient(45deg, #a8e6cf, #dcedc1);
-            transform: scale(0.95);
-            opacity: 0.8;
+            background: linear-gradient(45deg, #ffd700, #ffed4e);
+            transform: scale(0.9);
+            opacity: 0.9;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+            cursor: default;
+        }
+
+        .card.matched .card-front {
+            color: #333;
+            font-weight: bold;
         }
 
         .card-back {
@@ -270,26 +434,28 @@
         <h1 class="title">🌸 神経衰弱ゲーム 🌸</h1>
         <p class="subtitle">可愛いカードを揃えてAIと対戦しよう！</p>
 
+        <div class="game-controls">
+            <button class="btn" id="new-game-btn">🎮 新しいゲーム</button>
+        </div>
+
         <div class="game-info">
             <div class="score-board">
                 <div class="score-item">
                     <div>あなた</div>
                     <div id="player-score">0</div>
+                    <div class="matched-cards" id="player-matched-cards"></div>
                 </div>
                 <div class="score-item">
                     <div>AI</div>
                     <div id="ai-score">0</div>
+                    <div class="matched-cards" id="ai-matched-cards"></div>
                 </div>
             </div>
-            <div class="turn-indicator" id="turn-indicator">あなたのターンです！</div>
         </div>
 
         <div class="controls">
-            <button class="btn" id="new-game-btn">🎮 新しいゲーム</button>
-            <button class="btn" id="shuffle-btn">🔄 カードをシャッフル</button>
-            <button class="btn" id="deal-btn">🎴 カードを配る</button>
-            <button class="btn" id="ai-btn">🤖 AIのターン</button>
             <button class="btn" id="flip-back-btn" style="display: none;">🔄 カードを裏返す</button>
+            <button class="btn" id="ai-btn" style="display: none;">🤖 AIのターンです</button>
         </div>
 
         <div class="game-board" id="game-board">
@@ -342,7 +508,6 @@
                         waitingForSecond: false
                     };
                     renderGame();
-                    updateTurnIndicator();
                 });
         }
 
@@ -352,33 +517,45 @@
             gameBoard.innerHTML = '';
 
             for (let i = 0; i < 20; i++) {
-                const card = document.createElement('div');
-                card.className = 'card';
-                card.dataset.index = i;
-
                 if (gameState.matched[i]) {
-                    card.classList.add('matched');
-                } else if (gameState.flipped[i]) {
-                    card.classList.add('flipped');
+                    // マッチしたカードの場合は空のスペースを作成
+                    const emptySpace = document.createElement('div');
+                    emptySpace.className = 'card empty-space';
+                    emptySpace.style.visibility = 'hidden';
+                    gameBoard.appendChild(emptySpace);
+                } else {
+                    // 通常のカードを作成
+                    const card = document.createElement('div');
+                    card.className = 'card';
+                    card.dataset.index = i;
+
+                    if (gameState.flipped[i]) {
+                        card.classList.add('flipped');
+                    }
+
+                    const cardBack = document.createElement('div');
+                    cardBack.className = 'card-back';
+                    cardBack.innerHTML = '🎴';
+
+                    const cardFront = document.createElement('div');
+                    cardFront.className = 'card-front';
+                    cardFront.innerHTML = gameState.cards[i];
+
+                    card.appendChild(cardBack);
+                    card.appendChild(cardFront);
+
+                    card.addEventListener('click', () => handleCardClick(i));
+                    gameBoard.appendChild(card);
                 }
-
-                const cardBack = document.createElement('div');
-                cardBack.className = 'card-back';
-                cardBack.innerHTML = '🎴';
-
-                const cardFront = document.createElement('div');
-                cardFront.className = 'card-front';
-                cardFront.innerHTML = gameState.cards[i];
-
-                card.appendChild(cardBack);
-                card.appendChild(cardFront);
-
-                card.addEventListener('click', () => handleCardClick(i));
-                gameBoard.appendChild(card);
             }
 
             document.getElementById('player-score').textContent = gameState.playerScore;
             document.getElementById('ai-score').textContent = gameState.aiScore;
+            
+            // マッチしたカードを表示（キラキラ効果中は呼ばない）
+            if (!window.isSparkling) {
+                renderMatchedCards();
+            }
         }
 
         // カードクリック処理
@@ -407,6 +584,14 @@
                 const prevFirst = gameState.firstCard;
                 const prevSecond = data.second_card;
 
+                // マッチしたカードがあるかチェック（ゲーム状態を更新する前）
+                const newMatchedCards = [];
+                for (let i = 0; i < data.matched.length; i++) {
+                    if (data.matched[i] && !gameState.matched[i]) {
+                        newMatchedCards.push(i);
+                    }
+                }
+
                 gameState.flipped = data.flipped;
                 gameState.matched = data.matched;
                 gameState.playerScore = data.player_score;
@@ -415,18 +600,36 @@
                 gameState.firstCard = data.first_card;
                 gameState.secondCard = data.second_card;
 
-                renderGame();
-                updateTurnIndicator();
+                // 新しくマッチしたカードがある場合、キラキラ効果を表示（renderGameは呼ばない）
+                if (newMatchedCards.length > 0) {
+                    // スコア表示のみ更新
+                    document.getElementById('player-score').textContent = gameState.playerScore;
+                    document.getElementById('ai-score').textContent = gameState.aiScore;
+                    
+                    // マッチしたカードを表向きにする
+                    newMatchedCards.forEach(cardIndex => {
+                        const cardElement = document.querySelector(`[data-index="${cardIndex}"]`);
+                        if (cardElement) {
+                            cardElement.classList.add('flipped');
+                        }
+                    });
+                    
+                    showSparkleEffect(newMatchedCards);
+                } else {
+                    // マッチしなかった場合は通常通りrenderGameを呼ぶ
+                    renderGame();
+                }
 
                 // 2枚目のカードを選んだ場合で、マッチしなかった場合
                 if (data.current_turn === 'ai' && prevFirst !== null && prevSecond !== null && !data.matched[prevFirst] && !data.matched[prevSecond]) {
-                    // カードを裏返すボタンを表示
+                    // カードを裏返すボタンを表示（AIのターンボタンは非表示のまま）
                     document.getElementById('flip-back-btn').style.display = 'inline-block';
-                } else if (data.current_turn === 'ai') {
-                    // マッチした場合はすぐAIのターン
+                    document.getElementById('ai-btn').style.display = 'none';
+                } else if (data.current_turn === 'ai' && data.matched && data.matched.filter(m => m).length > gameState.matched.filter(m => m).length) {
+                    // マッチした場合は2秒後にAIのターン
                     setTimeout(() => {
                         handleAITurn();
-                    }, 1500);
+                    }, 2000);
                 }
 
                 // ゲーム終了チェック
@@ -445,21 +648,21 @@
                 gameState.flipped[flippedCards[1].index] = false;
                 
                 renderGame();
-                updateTurnIndicator();
                 
                 // カードを裏返すボタンを非表示
                 document.getElementById('flip-back-btn').style.display = 'none';
                 
-                // 次のターンに移行（プレイヤーのターン）
-                setTimeout(() => {
-                    updateTurnIndicator();
-                }, 500);
+                // AIのターンボタンを表示
+                document.getElementById('ai-btn').style.display = 'inline-block';
             }
         }
 
         // AIのターン処理
         function handleAITurn() {
             console.log('AIターン開始');
+            // AIのターンボタンを非表示
+            document.getElementById('ai-btn').style.display = 'none';
+            
             fetch('/api/ai-turn')
                 .then(response => response.json())
                 .then(data => {
@@ -474,24 +677,51 @@
                         // AIが選んだ2枚を表にする
                         gameState.flipped[data.ai_first_card] = true;
                         gameState.flipped[data.ai_second_card] = true;
+                        gameState.currentTurn = 'ai';
                         renderGame();
                         
-                        // AIがマッチした場合はそのまま、マッチしなかった場合はカードを裏返すボタンを表示
-                        if (data.current_turn === 'ai') {
-                            // AIがマッチした場合、続行
-                            gameState.flipped = data.flipped;
-                            gameState.matched = data.matched;
-                            gameState.playerScore = data.player_score;
-                            gameState.aiScore = data.ai_score;
-                            gameState.currentTurn = data.current_turn;
-                            renderGame();
-                            updateTurnIndicator();
-                        } else {
-                            // AIがマッチしなかった場合、カードを裏返すボタンを表示
-                            setTimeout(() => {
+                        // 1秒後に結果を処理
+                        setTimeout(() => {
+                            if (data.current_turn === 'ai') {
+                                // AIがマッチした場合、キラキラ効果を表示してから続行
+                                const newMatchedCards = [];
+                                for (let i = 0; i < data.matched.length; i++) {
+                                    if (data.matched[i] && !gameState.matched[i]) {
+                                        newMatchedCards.push(i);
+                                    }
+                                }
+                                
+                                gameState.flipped = data.flipped;
+                                gameState.matched = data.matched;
+                                gameState.playerScore = data.player_score;
+                                gameState.aiScore = data.ai_score;
+                                gameState.currentTurn = data.current_turn;
+                                
+                                if (newMatchedCards.length > 0) {
+                                    // スコア表示のみ更新
+                                    document.getElementById('player-score').textContent = gameState.playerScore;
+                                    document.getElementById('ai-score').textContent = gameState.aiScore;
+                                    
+                                    // マッチしたカードを表向きにする
+                                    newMatchedCards.forEach(cardIndex => {
+                                        const cardElement = document.querySelector(`[data-index="${cardIndex}"]`);
+                                        if (cardElement) {
+                                            cardElement.classList.add('flipped');
+                                        }
+                                    });
+                                    
+                                    showSparkleEffect(newMatchedCards);
+                                } else {
+                                    // マッチしなかった場合は通常通りrenderGameを呼ぶ
+                                    renderGame();
+                                }
+                            } else {
+                                // AIがマッチしなかった場合、カードを裏返すボタンを表示
+                                gameState.currentTurn = data.current_turn;
+                                document.getElementById('ai-btn').style.display = 'none';
                                 document.getElementById('flip-back-btn').style.display = 'inline-block';
-                            }, 1000);
-                        }
+                            }
+                        }, 1000);
                     } else {
                         // 通常の処理
                         gameState.flipped = data.flipped;
@@ -500,7 +730,6 @@
                         gameState.aiScore = data.ai_score;
                         gameState.currentTurn = data.current_turn;
                         renderGame();
-                        updateTurnIndicator();
                     }
 
                     // ゲーム終了チェック
@@ -511,16 +740,95 @@
                 });
         }
 
-        // ターン表示を更新
-        function updateTurnIndicator() {
-            const indicator = document.getElementById('turn-indicator');
-            if (gameState.currentTurn === 'player') {
-                indicator.textContent = 'あなたのターンです！';
-                indicator.style.color = '#ff6b9d';
-            } else {
-                indicator.textContent = 'AIのターンです...';
-                indicator.style.color = '#666';
+
+
+        // マッチしたカードを表示
+        function renderMatchedCards() {
+            const playerMatchedCards = document.getElementById('player-matched-cards');
+            const aiMatchedCards = document.getElementById('ai-matched-cards');
+            
+            // 既存のカードをクリア
+            playerMatchedCards.innerHTML = '';
+            aiMatchedCards.innerHTML = '';
+            
+            // マッチしたカードを収集
+            const matchedPairs = [];
+            for (let i = 0; i < gameState.matched.length; i++) {
+                if (gameState.matched[i]) {
+                    matchedPairs.push({
+                        index: i,
+                        symbol: gameState.cards[i]
+                    });
+                }
             }
+            
+            // ペアごとにグループ化
+            const pairs = [];
+            for (let i = 0; i < matchedPairs.length; i += 2) {
+                if (i + 1 < matchedPairs.length) {
+                    pairs.push([matchedPairs[i], matchedPairs[i + 1]]);
+                }
+            }
+            
+            // プレイヤーとAIのスコアに基づいてカードを分配
+            let playerPairs = pairs.slice(0, gameState.playerScore);
+            let aiPairs = pairs.slice(gameState.playerScore, gameState.playerScore + gameState.aiScore);
+            
+            // プレイヤーのマッチしたカードを表示
+            playerPairs.forEach(pair => {
+                const cardElement = document.createElement('div');
+                cardElement.className = 'matched-card';
+                cardElement.innerHTML = pair[0].symbol;
+                playerMatchedCards.appendChild(cardElement);
+            });
+            
+            // AIのマッチしたカードを表示
+            aiPairs.forEach(pair => {
+                const cardElement = document.createElement('div');
+                cardElement.className = 'matched-card';
+                cardElement.innerHTML = pair[0].symbol;
+                aiMatchedCards.appendChild(cardElement);
+            });
+        }
+
+        // キラキラ効果を表示
+        function showSparkleEffect(matchedCardIndices) {
+            console.log('キラキラ効果開始:', matchedCardIndices);
+            // キラキラ効果中フラグを設定
+            window.isSparkling = true;
+            
+            // まず1秒間、マッチしたカードを表向きで表示（キラキラ効果なし）
+            setTimeout(() => {
+                // マッチしたカードの位置にキラキラ効果を表示
+                matchedCardIndices.forEach(cardIndex => {
+                    const cardElement = document.querySelector(`[data-index="${cardIndex}"]`);
+                    if (cardElement) {
+                        console.log(`カード ${cardIndex} にキラキラ効果を適用`);
+                        // カードを表向きにしてキラキラ効果を適用
+                        cardElement.classList.add('flipped');
+                        cardElement.classList.add('sparkle-effect');
+                    } else {
+                        console.log(`カード ${cardIndex} の要素が見つかりません`);
+                    }
+                });
+                
+                // 4秒後にキラキラ効果を削除し、カードを空白にしてアイコンに移動
+                setTimeout(() => {
+                    matchedCardIndices.forEach(cardIndex => {
+                        const cardElement = document.querySelector(`[data-index="${cardIndex}"]`);
+                        if (cardElement) {
+                            cardElement.classList.remove('sparkle-effect');
+                            // マッチしたカードを空白にする
+                            cardElement.style.visibility = 'hidden';
+                            console.log(`カード ${cardIndex} のキラキラ効果終了`);
+                        }
+                    });
+                    // キラキラ効果中フラグを解除
+                    window.isSparkling = false;
+                    // アイコンの場所にマッチしたカードを表示
+                    renderMatchedCards();
+                }, 4000);
+            }, 1000);
         }
 
         // ゲーム終了チェック
@@ -570,7 +878,31 @@
         function startNewGame() {
             document.getElementById('game-over').style.display = 'none';
             document.getElementById('flip-back-btn').style.display = 'none';
-            initGame();
+            document.getElementById('ai-btn').style.display = 'none';
+            
+            // シャッフルアニメーションを表示
+            showShuffleAnimation();
+        }
+
+        // シャッフルアニメーションを表示
+        function showShuffleAnimation() {
+            const gameBoard = document.getElementById('game-board');
+            const cards = gameBoard.querySelectorAll('.card');
+            
+            // 全てのカードにシャッフル効果を適用
+            cards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.classList.add('shuffle-effect');
+                }, index * 50); // カードごとに少しずつ遅延
+            });
+            
+            // シャッフルアニメーション終了後に新しいゲームを開始
+            setTimeout(() => {
+                cards.forEach(card => {
+                    card.classList.remove('shuffle-effect');
+                });
+                initGame();
+            }, cards.length * 50 + 800); // 全てのカードのアニメーション + シャッフル時間
         }
 
         // カードシャッフル
@@ -584,6 +916,7 @@
                     gameState.firstCard = null;
                     gameState.secondCard = null;
                     document.getElementById('flip-back-btn').style.display = 'none';
+                    document.getElementById('ai-btn').style.display = 'none';
                     renderGame();
                 });
         }
@@ -602,7 +935,6 @@
                     gameState.secondCard = null;
                     document.getElementById('flip-back-btn').style.display = 'none';
                     renderGame();
-                    updateTurnIndicator();
                 });
         }
 
@@ -628,8 +960,6 @@
 
         // イベントリスナー設定
         document.getElementById('new-game-btn').addEventListener('click', startNewGame);
-        document.getElementById('shuffle-btn').addEventListener('click', shuffleCards);
-        document.getElementById('deal-btn').addEventListener('click', dealCards);
         document.getElementById('ai-btn').addEventListener('click', handleAITurn);
         document.getElementById('flip-back-btn').addEventListener('click', flipBackCards);
 
