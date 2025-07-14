@@ -1,24 +1,9 @@
 from flask import Flask, render_template, request, jsonify, session
-from flask_sqlalchemy import SQLAlchemy
 import os
 import random
-from datetime import datetime
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key')
-
-# データベース設定 - SQLiteのみ使用
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///game.db'
-
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-db = SQLAlchemy(app)
-
-# ゲーム履歴モデル
-class GameHistory(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    player_score = db.Column(db.Integer, default=0)
-    ai_score = db.Column(db.Integer, default=0)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 # カードの種類（可愛いテーマ）
 CARDS = [
@@ -205,38 +190,6 @@ def ai_turn():
     return jsonify(response_data)
 
 
-
-@app.route('/api/save-game', methods=['POST'])
-def save_game():
-    """ゲーム結果を保存"""
-    data = request.get_json()
-    player_score = data.get('player_score', 0)
-    ai_score = data.get('ai_score', 0)
-    
-    game_history = GameHistory(player_score=player_score, ai_score=ai_score)
-    db.session.add(game_history)
-    db.session.commit()
-    
-    return jsonify({'message': 'ゲーム結果を保存しました'})
-
-@app.route('/api/game-history')
-def get_game_history():
-    """ゲーム履歴を取得"""
-    history = GameHistory.query.order_by(GameHistory.created_at.desc()).limit(10).all()
-    return jsonify([{
-        'id': h.id,
-        'player_score': h.player_score,
-        'ai_score': h.ai_score,
-        'created_at': h.created_at.strftime('%Y-%m-%d %H:%M')
-    } for h in history])
-
-# データベース初期化
-try:
-    with app.app_context():
-        db.create_all()
-        print("Database initialized successfully")
-except Exception as e:
-    print(f"Database initialization error: {e}")
 
 if __name__ == '__main__':
     app.run(debug=True, host='127.0.0.1', port=8080) 

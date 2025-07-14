@@ -431,36 +431,6 @@
             font-size: 1.2rem;
         }
 
-        .history-section {
-            margin-top: 40px;
-            background: rgba(255, 255, 255, 0.9);
-            border-radius: 20px;
-            padding: 20px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-        }
-
-        .history-title {
-            color: #ff6b9d;
-            font-size: 1.5rem;
-            margin-bottom: 15px;
-        }
-
-        .history-list {
-            list-style: none;
-            text-align: left;
-        }
-
-        .history-item {
-            padding: 10px;
-            border-bottom: 1px solid #eee;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .history-item:last-child {
-            border-bottom: none;
-        }
-
         @media (max-width: 768px) {
             .game-board {
                 grid-template-columns: repeat(4, 1fr);
@@ -514,13 +484,6 @@
 
         <div class="game-board" id="game-board">
             <!-- カードがここに生成されます -->
-        </div>
-
-        <div class="history-section">
-            <h3 class="history-title">📊 ゲーム履歴</h3>
-            <ul class="history-list" id="history-list">
-                <!-- 履歴がここに表示されます -->
-            </ul>
         </div>
     </div>
 
@@ -617,10 +580,8 @@
             document.getElementById('player-score').textContent = gameState.playerScore;
             document.getElementById('ai-score').textContent = gameState.aiScore;
             
-            // マッチしたカードを表示（キラキラ効果中は呼ばない）
-            if (!window.isSparkling) {
-                renderMatchedCards();
-            }
+            // マッチしたカードを表示（常に表示）
+            renderMatchedCards();
         }
 
         // カードクリック処理
@@ -833,24 +794,26 @@
             playerMatchedCards.innerHTML = '';
             aiMatchedCards.innerHTML = '';
             
-            // プレイヤーがマッチしたカードを表示
+            // プレイヤーがマッチしたカードを表示（ペアごとに1枚ずつ）
             if (gameState.player_matched_cards) {
-                gameState.player_matched_cards.forEach(cardIndex => {
+                for (let i = 0; i < gameState.player_matched_cards.length; i += 2) {
+                    const cardIndex = gameState.player_matched_cards[i];
                     const cardElement = document.createElement('div');
                     cardElement.className = 'matched-card';
                     cardElement.innerHTML = gameState.cards[cardIndex];
                     playerMatchedCards.appendChild(cardElement);
-                });
+                }
             }
             
-            // AIがマッチしたカードを表示
+            // AIがマッチしたカードを表示（ペアごとに1枚ずつ）
             if (gameState.ai_matched_cards) {
-                gameState.ai_matched_cards.forEach(cardIndex => {
+                for (let i = 0; i < gameState.ai_matched_cards.length; i += 2) {
+                    const cardIndex = gameState.ai_matched_cards[i];
                     const cardElement = document.createElement('div');
                     cardElement.className = 'matched-card';
                     cardElement.innerHTML = gameState.cards[cardIndex];
                     aiMatchedCards.appendChild(cardElement);
-                });
+                }
             }
         }
 
@@ -859,6 +822,9 @@
             console.log('キラキラ効果開始:', matchedCardIndices);
             // キラキラ効果中フラグを設定
             window.isSparkling = true;
+            
+            // キラキラ効果開始時にマッチしたカードを表示
+            renderMatchedCards();
             
             // まず1秒間、マッチしたカードを表向きで表示（キラキラ効果なし）
             setTimeout(() => {
@@ -888,7 +854,7 @@
                     });
                     // キラキラ効果中フラグを解除
                     window.isSparkling = false;
-                    // アイコンの場所にマッチしたカードを表示
+                    // アイコンの場所にマッチしたカードを表示（再度更新）
                     renderMatchedCards();
                     
                     // キラキラ効果終了後にボタンの表示状態を確認
@@ -935,18 +901,6 @@
             finalScore.textContent = `最終スコア: あなた ${gameState.playerScore} - ${gameState.aiScore} AI`;
 
             gameOver.style.display = 'flex';
-
-            // ゲーム結果を保存
-            fetch('/api/save-game', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    player_score: gameState.playerScore,
-                    ai_score: gameState.aiScore
-                })
-            });
         }
 
         // 新しいゲーム開始
@@ -980,28 +934,6 @@
             }, cards.length * 50 + 800); // 全てのカードのアニメーション + シャッフル時間
         }
 
-
-
-        // ゲーム履歴を読み込み
-        function loadGameHistory() {
-            fetch('/api/game-history')
-                .then(response => response.json())
-                .then(data => {
-                    const historyList = document.getElementById('history-list');
-                    historyList.innerHTML = '';
-
-                    data.forEach(game => {
-                        const item = document.createElement('li');
-                        item.className = 'history-item';
-                        item.innerHTML = `
-                            <span>${game.created_at}</span>
-                            <span>あなた ${game.player_score} - ${game.ai_score} AI</span>
-                        `;
-                        historyList.appendChild(item);
-                    });
-                });
-        }
-
         // イベントリスナー設定
         document.getElementById('new-game-btn').addEventListener('click', startNewGame);
         document.getElementById('ai-btn').addEventListener('click', handleAITurn);
@@ -1009,7 +941,6 @@
 
         // 初期化
         initGame();
-        loadGameHistory();
     </script>
 </body>
 </html> 
